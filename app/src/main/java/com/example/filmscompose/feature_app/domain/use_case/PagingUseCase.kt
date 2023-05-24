@@ -9,7 +9,7 @@ import retrofit2.Response
 
 class PagingUseCase(
     private val api: suspend (page: Int) -> Response<SearchResponse>
-): PagingSource<Int, SearchResult>() {
+) : PagingSource<Int, SearchResult>() {
     override fun getRefreshKey(state: PagingState<Int, SearchResult>): Int? {
         val anchorPosition = state.anchorPosition ?: return null
         val page = state.closestPageToPosition(anchorPosition) ?: return null
@@ -24,9 +24,21 @@ class PagingUseCase(
 
         return if (response.isSuccessful) {
             val data = checkNotNull(response.body()).data
-            val nextKey = if (data.size < pageSize) null else page + 1
-            val prevKey = if (page == 1) null else page - 1
-            LoadResult.Page(data, prevKey, nextKey)
+            val nextKey = try {
+                if (data.size < pageSize) null else page + 1
+            } catch (e: Exception) {
+                null
+            }
+            val prevKey = try {
+                if (page == 1) null else page - 1
+            } catch (e: Exception) {
+                null
+            }
+            try {
+                LoadResult.Page(data, prevKey, nextKey)
+            } catch (e: Exception) {
+                LoadResult.Error(HttpException(response))
+            }
         } else {
             LoadResult.Error(HttpException(response))
         }
