@@ -1,5 +1,6 @@
 package com.example.filmscompose.feature_app.presentation.ui.screen.main
 
+import android.util.Log
 import androidx.compose.runtime.State
 import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
@@ -60,6 +61,7 @@ class MainScreenViewModel @Inject constructor(
         ),
     ) {
         PagingUseCase {
+            Log.e("TAG", "_getSearchResult: ${it}", )
             searchUseCase(text, it)
         }
     }.flow.cachedIn(viewModelScope)

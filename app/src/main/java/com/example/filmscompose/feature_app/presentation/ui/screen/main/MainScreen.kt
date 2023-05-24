@@ -1,12 +1,15 @@
 package com.example.filmscompose.feature_app.presentation.ui.screen.main
 
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.ExperimentalMaterialApi
 import androidx.compose.material.ModalBottomSheetLayout
 import androidx.compose.material.ModalBottomSheetValue
+import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -14,6 +17,8 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -21,11 +26,15 @@ import androidx.navigation.NavHostController
 import androidx.paging.compose.collectAsLazyPagingItems
 import androidx.paging.compose.items
 import com.example.filmscompose.feature_app.domain.model.film.FilmItemModel
+import com.example.filmscompose.feature_app.presentation.ui.components.DialogProgressBar
 import com.example.filmscompose.feature_app.presentation.ui.components.GenericTopAppBar
+import com.example.filmscompose.feature_app.presentation.ui.components.collectAsLazyPagingObserveItems
 import com.example.filmscompose.feature_app.presentation.ui.navigation.Screen
 import com.example.filmscompose.feature_app.presentation.ui.screen.main.components.BottomSheetContent
 import com.example.filmscompose.feature_app.presentation.ui.screen.main.components.FilmItem
+import com.example.filmscompose.feature_app.utils.Resource
 import kotlinx.coroutines.launch
+
 
 @OptIn(ExperimentalMaterialApi::class)
 @Composable
@@ -38,7 +47,8 @@ fun MainScreen(
         rememberModalBottomSheetState(initialValue = ModalBottomSheetValue.Hidden)
     val scope = rememberCoroutineScope()
 
-    val searchResult = viewModel.searchResult.collectAsLazyPagingItems()
+    val searchResult =
+        collectAsLazyPagingObserveItems(viewModel.searchResult.collectAsLazyPagingItems())
 
     var search by rememberSaveable { mutableStateOf("") }
 
@@ -70,66 +80,48 @@ fun MainScreen(
             )
 
             LazyColumn(contentPadding = PaddingValues(top = 20.dp)) {
-                items(searchResult) { item ->
-                    item?.let {
-                        FilmItem(
-                            item = it.let { FilmItemModel.toFilmItemModel(it) },
-                            onClick = {
-                                navController.navigate(Screen.Film + "/${it.id}")
+                when (searchResult) {
+                    is Resource.Error -> {
+
+                    }
+
+                    is Resource.Inactive -> {
+                        item {
+                            Box(
+                                Modifier.fillMaxSize(),
+                                contentAlignment = Alignment.Center
+                            ) {
+                                Text(text = "SET THE SEARCH PARAMETERS")
                             }
-                        )
+                        }
+                    }
+
+                    is Resource.Loading -> {
+                        item {
+                            DialogProgressBar()
+                        }
+                    }
+
+                    is Resource.Success -> {
+                        val result = searchResult.data
+                        result?.let { items ->
+                            items(items) { item ->
+                                item?.let {
+                                    FilmItem(
+                                        item = it.let { FilmItemModel.toFilmItemModel(it) },
+                                        onClick = {
+                                            navController.navigate(Screen.Film + "/${it.id}")
+                                        }
+                                    )
+                                }
+                            }
+                        }
                     }
                 }
+
             }
 
 
-//            LazyColumn(
-//                contentPadding = PaddingValues(top = 20.dp)
-//            ) {
-//
-//                when (val result = viewModel.searchResult.value) {
-//                    is Resource.Success -> {
-//
-//                        result.data?.data?.map {
-//                            FilmItemModel.toFilmItemModel(it)
-//                        }?.let { list ->
-//                            items(searchResult) {
-//                                FilmItem(
-//                                    item = it,
-//                                    onClick = {
-//                                        navController.navigate(Screen.Film + "/${it.id}")
-//                                    }
-//                                )
-//                            }
-//                        }
-//                    }
-//
-//                    is Resource.Error -> {
-//                        item {
-//                            Box(
-//                                Modifier.fillMaxSize(),
-//                                contentAlignment = Alignment.Center
-//                            ) {
-//                                IconButton(onClick = { viewModel.searchResult(search) }) {
-//                                    Icon(Icons.Default.Refresh, contentDescription = "Refresh icon")
-//                                }
-//                            }
-//                        }
-//                    }
-//
-//                    is Resource.Loading -> {
-//                        item {
-//                            DialogProgressBar()
-//                        }
-//                    }
-//
-//                    is Resource.Inactive -> {
-//
-//                    }
-//                }
-//
-//
-//            }
         }
     }
 
