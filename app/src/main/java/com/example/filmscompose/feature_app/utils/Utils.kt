@@ -1,6 +1,9 @@
 package com.example.filmscompose.feature_app.utils
 
+import android.content.Context
+import android.content.res.Resources
 import android.graphics.BlurMaskFilter
+import android.util.DisplayMetrics
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
@@ -43,36 +46,15 @@ fun <T> safeApiCall(call: suspend() -> Response<T>): Flow<Resource<T>> = flow {
 }
 
 
-fun Modifier.advancedShadow(
-    color: Color = Color.Black,
-    alpha: Float = 1f,
-    cornersRadius: Dp = 0.dp,
-    shadowBlurRadius: Dp = 0.dp,
-    offsetY: Dp = 0.dp,
-    offsetX: Dp = 0.dp
-) = drawBehind {
 
-    val shadowColor = color.copy(alpha = alpha).toArgb()
-    val transparentColor = color.copy(alpha = 0f).toArgb()
 
-    drawIntoCanvas {
-        val paint = Paint()
-        val frameworkPaint = paint.asFrameworkPaint()
-        frameworkPaint.color = transparentColor
-        frameworkPaint.setShadowLayer(
-            shadowBlurRadius.toPx(),
-            offsetX.toPx(),
-            offsetY.toPx(),
-            shadowColor
-        )
-        it.drawRoundRect(
-            0f,
-            0f,
-            this.size.width,
-            this.size.height,
-            cornersRadius.toPx(),
-            cornersRadius.toPx(),
-            paint
-        )
-    }
+fun Context.percentageWidthSize(percentage: Int): Dp {
+    val displayMetrics: DisplayMetrics = resources.displayMetrics
+    return ((displayMetrics.widthPixels * percentage) / 100).toDp()/*((percentage * displayMetrics.densityDpi) / DisplayMetrics.DENSITY_DEFAULT).dp*/
 }
+
+fun Int.toDp(): Dp {
+    return (this / Resources.getSystem().displayMetrics.density).dp
+}
+
+fun percentageSize(parentSize: Dp, percentage: Int) = (parentSize * percentage) / 100

@@ -83,6 +83,8 @@ dependencies {
     kapt("androidx.hilt:hilt-compiler:1.0.0")
     implementation("androidx.hilt:hilt-navigation-compose:1.0.0")
 
+    //Navigation component
+    implementation("androidx.navigation:navigation-compose:2.5.3")
 
     //Coil
     val coil = "2.2.2"
@@ -99,4 +101,6 @@ dependencies {
     kapt ("androidx.room:room-compiler:$room")
     implementation("androidx.room:room-ktx:$room")
     testImplementation("androidx.room:room-testing:$room")
+
+    implementation("androidx.paging:paging-compose:1.0.0-alpha14")
 }
