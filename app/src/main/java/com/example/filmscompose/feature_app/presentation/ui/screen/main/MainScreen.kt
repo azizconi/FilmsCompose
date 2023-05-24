@@ -12,6 +12,7 @@ import androidx.compose.material.ModalBottomSheetValue
 import androidx.compose.material.Text
 import androidx.compose.material.rememberModalBottomSheetState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.rememberCoroutineScope
@@ -107,10 +108,28 @@ fun MainScreen(
                         result?.let { items ->
                             items(items) { item ->
                                 item?.let {
+                                    val isFavorite =
+                                        viewModel.checkFilmToFavorite(it.id).collectAsState(null)
+
+
+                                    val film = it.let {
+                                        FilmItemModel.toFilmItemModel(
+                                            it
+                                        )
+                                    }
+
                                     FilmItem(
-                                        item = it.let { FilmItemModel.toFilmItemModel(it) },
+                                        item = film,
                                         onClick = {
                                             navController.navigate(Screen.Film + "/${it.id}")
+                                        },
+                                        isFavorite = isFavorite.value != null,
+                                        onFavoriteClick = {
+                                            if (isFavorite.value != null) {
+                                                viewModel.deleteFilmToFavorite(film)
+                                            } else {
+                                                viewModel.addFilmToFavorite(film)
+                                            }
                                         }
                                     )
                                 }

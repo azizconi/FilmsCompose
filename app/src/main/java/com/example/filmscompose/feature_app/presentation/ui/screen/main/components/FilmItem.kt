@@ -38,6 +38,8 @@ import com.example.filmscompose.feature_app.presentation.ui.theme.TextFieldBackg
 @Composable
 fun FilmItem(
     item: FilmItemModel,
+    isFavorite: Boolean,
+    onFavoriteClick: () -> Unit,
     onClick: () -> Unit
 ) {
 
@@ -111,11 +113,11 @@ fun FilmItem(
                         .size(36.dp)
                         .clip(RoundedCornerShape(8.dp))
                         .background(TextFieldBackgroundColor)
-                        .clickable { item.isFavorite = !item.isFavorite },
+                        .clickable { onFavoriteClick() },
                     contentAlignment = Alignment.Center,
                 ) {
                     Icon(
-                        if (!item.isFavorite) Icons.Default.FavoriteBorder else Icons.Default.Favorite,
+                        if (!isFavorite) Icons.Default.FavoriteBorder else Icons.Default.Favorite,
                         contentDescription = "favorite-icon",
                         modifier = Modifier.size(24.dp),
                         tint = Color.Red
@@ -133,5 +135,5 @@ fun FilmItem(
 @Preview
 @Composable
 fun FilmItemPreview() {
-    FilmItem(item = FilmItemModel("1", "Гарри Потер", "2002", "Film", "", false), onClick = {})
+    FilmItem(item = FilmItemModel("1", "Гарри Потер", "2002", "Film", "", false), onClick = {}, isFavorite = false, onFavoriteClick = {})
 }

@@ -20,6 +20,7 @@ import androidx.compose.material.Icon
 import androidx.compose.material.IconButton
 import androidx.compose.material.Text
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.Refresh
 import androidx.compose.material3.OutlinedButton
@@ -44,6 +45,7 @@ import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavHostController
 import coil.compose.rememberAsyncImagePainter
+import com.example.filmscompose.feature_app.domain.model.film.FilmItemModel
 import com.example.filmscompose.feature_app.presentation.ui.components.DialogProgressBar
 import com.example.filmscompose.feature_app.presentation.ui.components.GenericTextField
 import com.example.filmscompose.feature_app.presentation.ui.components.GenericTopAppBar
@@ -150,11 +152,22 @@ fun FilmScreen(
                                                 .size(30.dp)
                                                 .clip(RoundedCornerShape(8.dp))
                                                 .background(TextFieldBackgroundColor)
-                                                .clickable { },
+                                                .clickable {
+                                                    if (!viewModel.isFavoriteFilm.value) {
+                                                        viewModel.addFilmToFavorite(
+                                                            FilmItemModel.toFilmItemModel(it)
+                                                        )
+                                                    } else {
+                                                        viewModel.deleteFilmToFavorite(
+                                                            FilmItemModel.toFilmItemModel(it)
+                                                        )
+                                                    }
+                                                },
                                             contentAlignment = Alignment.Center,
                                         ) {
                                             Icon(
-                                                Icons.Default.FavoriteBorder,
+                                                if (!viewModel.isFavoriteFilm.value) Icons.Default.FavoriteBorder
+                                                else Icons.Default.Favorite,
                                                 contentDescription = "favorite-icon",
                                                 modifier = Modifier.size(24.dp),
                                                 tint = Color.Red

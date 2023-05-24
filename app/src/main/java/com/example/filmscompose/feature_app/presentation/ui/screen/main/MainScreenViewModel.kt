@@ -11,6 +11,8 @@ import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import com.example.filmscompose.feature_app.data.remote.response.search.SearchResponse
 import com.example.filmscompose.feature_app.data.remote.response.search.SearchResult
+import com.example.filmscompose.feature_app.domain.model.film.FilmItemModel
+import com.example.filmscompose.feature_app.domain.use_case.FavoriteUseCase
 import com.example.filmscompose.feature_app.domain.use_case.PagingUseCase
 import com.example.filmscompose.feature_app.domain.use_case.SearchUseCase
 import com.example.filmscompose.feature_app.utils.Resource
@@ -21,6 +23,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.launchIn
 import kotlinx.coroutines.flow.onEach
 import kotlinx.coroutines.flow.stateIn
@@ -31,7 +34,8 @@ import javax.inject.Inject
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
-    private val searchUseCase: SearchUseCase
+    private val searchUseCase: SearchUseCase,
+    private val favoriteUseCase: FavoriteUseCase
 ) : ViewModel() {
 
     //    private val _searchResult = mutableStateOf<Resource<SearchResponse>>(Resource.Inactive())
@@ -61,7 +65,7 @@ class MainScreenViewModel @Inject constructor(
         ),
     ) {
         PagingUseCase {
-            Log.e("TAG", "_getSearchResult: ${it}", )
+            Log.e("TAG", "_getSearchResult: ${it}")
             searchUseCase(text, it)
         }
     }.flow.cachedIn(viewModelScope)
@@ -70,4 +74,17 @@ class MainScreenViewModel @Inject constructor(
     /*val films: Flow<PagingData<SearchResult>> = */
 
 
+    fun checkFilmToFavorite(id: String) = favoriteUseCase.getFilm(id)
+
+    fun addFilmToFavorite(filmItemModel: FilmItemModel) {
+        viewModelScope.launch {
+            favoriteUseCase.saveFilm(filmItemModel)
+        }
+    }
+
+    fun deleteFilmToFavorite(filmItemModel: FilmItemModel) {
+        viewModelScope.launch {
+            favoriteUseCase.deleteFilm(filmItemModel)
+        }
+    }
 }
